@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity >0.4.23 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -21,6 +21,7 @@ contract DAOSoul is ERC721, ERC721URIStorage, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     Counters.Counter private _tokenIdCounter;
+    uint256 public tokenPrice = 0 ether;
 
     /*///////////////////////////////////////////////////////////////
                             ERRORS
@@ -53,11 +54,20 @@ contract DAOSoul is ERC721, ERC721URIStorage, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     // @dev Mint function.
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function safeMint(address to, string memory uri) public payable {
+        require(
+            msg.value == tokenPrice,
+            "You must pay the correct price to mint a badge."
+        );
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+    }
+
+    // @dev Price change function.
+    function setPrice(uint256 _tokenPrice) public onlyOwner {
+        tokenPrice = _tokenPrice;
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -74,7 +84,7 @@ contract DAOSoul is ERC721, ERC721URIStorage, Ownable {
     }
 
     // @dev Function that prevents the token from being transferred.
-    // @notice When the address from == 0, it means the token is being issued or minted and not transferred.
+    // @notice When the address from == adrress(0), it means the token is being issued or minted and not transferred.
     function _beforeTokenTransfer(
         address from,
         address to,

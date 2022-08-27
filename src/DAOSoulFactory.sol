@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >0.4.23 <0.9.0;
 
 import "./DAOSoul.sol";
 import "@optionality/contracts/CloneFactory.sol";
@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract DAOSoulFactory is Ownable, CloneFactory {
     address public libraryAddress;
 
-    event SoulCreated(address newFoundation);
+    event SoulCreated(address newSoul);
 
     function SoulFactory(address _libraryAddress) public {
         libraryAddress = _libraryAddress;
@@ -18,9 +18,9 @@ contract DAOSoulFactory is Ownable, CloneFactory {
         libraryAddress = _libraryAddress;
     }
 
-    function createSoul(string _name) public onlyOwner {
+    function createSoul() public onlyOwner {
         address clone = createClone(libraryAddress);
-        DAOSoul(clone).init(_name);
-        SoulCreated(clone);
+        DAOSoul(clone);
+        emit SoulCreated(clone);
     }
 }
